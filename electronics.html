@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Electronics - EDTECH SYSTEMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav>
+    <h1>EDTECH SYSTEMS</h1>
+    <div>
+      <a href="index.html">Home</a>
+      <a href="electronics.html">Electronics</a>
+      <a href="checkout.html" id="goToCheckout">Cart</a>
+    </div>
+  </nav>
+
+  <!-- Electronics Container -->
+  <div class="electronics-container">
+    <h2>All Electronics</h2>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <h3>Filter Products</h3>
+      <input type="text" id="searchInput" placeholder="Search products...">
+      <select id="priceFilter">
+        <option value="">All Prices</option>
+        <option value="0-100">$0 - $100</option>
+        <option value="100-200">$100 - $200</option>
+        <option value="200+">$200+</option>
+      </select>
+      <button onclick="applyFilters()">Filter</button>
+    </div>
+
+    <!-- Product Grid -->
+    <div class="product-grid" id="productsContainer"></div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 EDTECH SYSTEMS | Contact: info@edtechsystems.com</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const products = [
+        { id: 1, name: 'CCTV Camera', price: 50, image: 'images/cctv.jpg' },
+        { id: 2, name: 'Drone', price: 150, image: 'images/drone.jpg' },
+        { id: 3, name: 'Smartwatch', price: 80, image: 'images/watch.jpg' },
+        { id: 4, name: 'Wireless Headphones', price: 120, image: 'images/headphones.jpg' },
+        { id: 5, name: 'USB Hub', price: 30, image: 'images/usb.jpg' },
+        { id: 6, name: '4K Webcam', price: 200, image: 'images/webcam.jpg' },
+      ];
+
+      const container = document.getElementById('productsContainer');
+
+      function renderProducts(list) {
+        container.innerHTML = '';
+        list.forEach(product => {
+          const div = document.createElement('div');
+          div.className = 'product-card';
+          div.innerHTML = `
+            <img src="${product.image}" alt="${product.name}" loading="lazy">
+            <h3>${product.name}</h3>
+            <p>$${product.price}</p>
+            <button class="add-btn" data-id="${product.id}">Add to Cart</button>
+          `;
+          container.appendChild(div);
+        });
+
+        container.addEventListener('click', (e) => {
+          const btn = e.target.closest('.add-btn');
+          if (!btn) return;
+          btn.classList.add('added');
+          setTimeout(() => btn.classList.remove('added'), 800);
+          console.log(`Product ${btn.dataset.id} added to cart`);
+        });
+      }
+
+      window.applyFilters = () => {
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const priceRange = document.getElementById('priceFilter').value;
+
+        let filtered = products.filter(p => p.name.toLowerCase().includes(search));
+
+        if (priceRange === '0-100') filtered = filtered.filter(p => p.price <= 100);
+        else if (priceRange === '100-200') filtered = filtered.filter(p => p.price >= 100 && p.price <= 200);
+        else if (priceRange === '200+') filtered = filtered.filter(p => p.price >= 200);
+
+        renderProducts(filtered);
+      };
+
+      renderProducts(products);
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout - EDTECH SYSTEMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav>
+    <h1>EDTECH SYSTEMS</h1>
+    <div>
+      <a href="index.html">Home</a>
+      <a href="electronics.html">Electronics</a>
+      <a href="checkout.html" id="goToCheckout">Cart</a>
+    </div>
+  </nav>
+
+  <!-- Checkout Container -->
+  <div class="checkout-container">
+    <h2>Shopping Cart</h2>
+    <div class="checkout-wrapper">
+      <!-- Cart Items -->
+      <div class="cart-items">
+        <h2>Your Items</h2>
+        <div id="cartItemsContainer"></div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="checkout-summary">
+        <h3>Order Summary</h3>
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span id="subtotal">$0</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping:</span>
+          <span>$10</span>
+        </div>
+        <div class="summary-row">
+          <span>Tax:</span>
+          <span id="tax">$0</span>
+        </div>
+        <div class="summary-total">
+          <span>Total:</span>
+          <span id="total">$0</span>
+        </div>
+        <button class="checkout-btn" onclick="completeCheckout()">Complete Purchase</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 EDTECH SYSTEMS | Contact: info@edtechsystems.com</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const mockCart = [
+        { id: 1, name: 'CCTV Camera', price: 50, qty: 1 },
+        { id: 2, name: 'Drone', price: 150, qty: 1 },
+      ];
+
+      const container = document.getElementById('cartItemsContainer');
+
+      function renderCart(items) {
+        if (items.length === 0) {
+          container.innerHTML = '<div class="empty-cart"><p>Your cart is empty</p><a href="electronics.html" class="cta-btn">Continue Shopping</a></div>';
+          updateSummary([]);
+          return;
+        }
+
+        container.innerHTML = items.map(item => `
+          <div class="cart-item">
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.name}</div>
+              <div class="cart-item-price">$${item.price}</div>
+              <div class="cart-item-qty">Qty: ${item.qty}</div>
+            </div>
+            <button class="cart-item-remove" onclick="removeItem(${item.id})">Remove</button>
+          </div>
+        `).join('');
+
+        updateSummary(items);
+      }
+
+      window.removeItem = (id) => {
+        const idx = mockCart.findIndex(item => item.id === id);
+        if (idx > -1) mockCart.splice(idx, 1);
+        renderCart(mockCart);
+      };
+
+      window.updateSummary = (items) => {
+        const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+        const tax = subtotal * 0.1;
+        const total = subtotal + 10 + tax;
+        document.getElementById('subtotal').textContent = `$${subtotal}`;
+        document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+        document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+      };
+
+      window.completeCheckout = () => {
+        alert('Order placed successfully!');
+      };
+
+      renderCart(mockCart);
+    });
+  </script>
+</body>
+</html>
+
+  <!-- JS -->
+  <script>
+    // Get cart from localStorage
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartContainer = document.getElementById('cartItems');
+    const totalEl = document.getElementById('total');
+
+    // Display cart items
+    let total = 0;
+    cart.forEach((item, index) => {
+      const div = document.createElement('div');
+      div.className = 'product-card';
+      div.innerHTML = `
+        <h3>${item.name}</h3>
+        <p>$${item.price}</p>
+        <button onclick="removeItem(${index})" style="background-color:#f00;color:#fff;">Remove</button>
+      `;
+      cartContainer.appendChild(div);
+      total += item.price;
+    });
+
+    totalEl.textContent = `Total: $${total}`;
+
+    // Remove item function
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      location.reload(); // reload page to update cart
+    }
+
+    // Pay Now button
+    document.getElementById('payBtn').addEventListener('click', () => {
+      if(cart.length === 0){
+        alert('Your cart is empty!');
+        return;
+      }
+      alert(`Payment successful! Total paid: $${total}`);
+      localStorage.removeItem('cart'); // clear cart after payment
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
