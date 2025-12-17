@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,10 +35,6 @@
           <span>Subtotal:</span>
           <span id="subtotal">KSh 0</span>
         </div>
-        <div class="summary-row">
-          <span>Tax:</span>
-          <span id="tax">KSh 0</span>
-        </div>
         <div class="summary-total">
           <span>Total:</span>
           <span id="total">KSh 0</span>
@@ -60,9 +55,6 @@
       return 'KSh ' + Number(amount).toLocaleString('en-KE', { maximumFractionDigits: 0 });
     }
 
-    // Shipping fee removed
-    const TAX_RATE = 0.10; // 10% tax
-
     function getCart() {
       return JSON.parse(localStorage.getItem('cart')) || [];
     }
@@ -74,7 +66,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       const container = document.getElementById('cartItemsContainer');
       const subtotalEl = document.getElementById('subtotal');
-      const taxEl = document.getElementById('tax');
       const totalEl = document.getElementById('total');
       const checkoutBtn = document.getElementById('checkoutBtn');
 
@@ -106,11 +97,8 @@
 
       function updateSummary(cartItems) {
         const subtotal = (cartItems || getCart()).reduce((sum, it) => sum + Number(it.price) * Number(it.qty), 0);
-        const tax = subtotal * TAX_RATE;
-        const total = subtotal + tax; // shipping removed
-
+        const total = subtotal; // taxes removed
         subtotalEl.textContent = formatKsh(subtotal);
-        taxEl.textContent = formatKsh(tax);
         totalEl.textContent = formatKsh(total);
       }
 
