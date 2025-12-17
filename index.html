@@ -1,18 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>EDTECH SYSTEMS</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* Minimal inline styles for the add-to-cart feedback */
-    .product-card { transition: transform 150ms ease; }
-    .add-btn.added { background: #28a745; color: #fff; transform: scale(0.98); }
-    .product-grid { display:flex; gap:16px; flex-wrap:wrap; }
-    .product-card { border:1px solid #eee; padding:12px; width:200px; box-sizing:border-box; }
-    .cta-btn { text-decoration:none; padding:8px 12px; background:#007bff; color:#fff; border-radius:4px; }
+    /* small inline tweaks for button feedback on this page */
+    .add-btn.added { background: #28a745 !important; transform: scale(0.98); }
   </style>
 </head>
 <body>
@@ -26,64 +22,70 @@
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <section class="hero">
+  <!-- Hero -->
+  <section class="hero container">
     <div class="hero-text">
-      <h2>Welcome to EDTECH SYSTEMS</h2>
-      <p>Discover high-tech electronics delivered professionally.</p>
-      <a href="electronics.html" class="cta-btn">Shop Now</a>
+      <h2>Quality Electronics for Everyday Life</h2>
+      <p>Shop Bluetooth speakers, CCTV cameras, dashcams, smart bulbs, WiFi extenders and more — delivered reliably.</p>
+      <a href="electronics.html" class="cta-btn">Browse Products</a>
     </div>
     <div class="hero-image">
-      <img src="images/drone.jpg" alt="Tech Product" loading="lazy">
+      <img src="images/drone.jpg" alt="Featured tech" loading="lazy">
     </div>
   </section>
 
   <!-- Featured Products -->
-  <section class="featured">
-    <h2>Featured Electronics</h2>
+  <section class="featured container" aria-labelledby="featuredHeading">
+    <h2 id="featuredHeading">Featured Electronics</h2>
     <div class="product-grid" id="featuredProducts" aria-live="polite"></div>
   </section>
 
-  <!-- About Section -->
-  <section class="about">
+  <!-- About -->
+  <section class="about container">
     <h2>About EDTECH SYSTEMS</h2>
-    <p>We provide the latest electronic gadgets with a professional touch. Our mission is to deliver quality tech products to make your life smarter and easier.</p>
+    <p>We supply reliable, affordable electronics with friendly support and fast delivery across Kenya.</p>
   </section>
 
   <!-- Why Choose Us -->
-  <section class="features">
+  <section class="features container">
     <h2>Why Choose Us</h2>
     <div class="features-grid">
       <div class="feature">
-        <h3>High Quality</h3>
-        <p>We sell only trusted electronics brands.</p>
+        <h3>Trusted Brands</h3>
+        <p>Curated selection from trusted manufacturers.</p>
       </div>
       <div class="feature">
         <h3>Fast Delivery</h3>
-        <p>Receive your products quickly and safely.</p>
+        <p>Prompt shipping and secure packaging.</p>
       </div>
       <div class="feature">
-        <h3>Professional Support</h3>
-        <p>24/7 customer support for all your queries.</p>
+        <h3>Support</h3>
+        <p>Easy returns and helpful customer support.</p>
       </div>
     </div>
   </section>
 
   <!-- Footer -->
   <footer>
-    <p>&copy; 2025 EDTECH SYSTEMS | Contact: info@edtechsystems.com</p>
+    <p>&copy; 2025 EDTECH SYSTEMS | Contact: ewairagu@gmail.com</p>
   </footer>
 
   <script>
+    // Format as Kenyan Shillings
+    function formatKsh(amount) {
+      return 'KSh ' + Number(amount).toLocaleString('en-KE', { maximumFractionDigits: 0 });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      // Featured Products Data
+      // featured products (same items as electronics page)
       const featuredProducts = [
-        { id: 1, name: 'CCTV Camera', price: 50, image: 'images/cctv.jpg' },
-        { id: 2, name: 'Drone', price: 150, image: 'images/drone.jpg' },
-        { id: 3, name: 'Smartwatch', price: 80, image: 'images/watch.jpg' },
+        { id: 1, name: 'Bluetooth Speaker', price: 45, image: 'images/bluetooth-speaker.jpg' },
+        { id: 2, name: 'Portable Speaker', price: 75, image: 'images/speaker.jpg' },
+        { id: 3, name: 'CCTV Camera', price: 120, image: 'images/cctv.jpg' },
+        { id: 4, name: 'Dashcam', price: 85, image: 'images/dashcam.jpg' },
+        { id: 5, name: 'Smart Bulb', price: 20, image: 'images/smart-bulb.jpg' }
       ];
 
-      // Display Featured Products
       const featuredContainer = document.getElementById('featuredProducts');
       if (!featuredContainer) return;
 
@@ -91,49 +93,38 @@
         const div = document.createElement('div');
         div.className = 'product-card';
         div.innerHTML = `
-          <img src="${product.image}" alt="${product.name}" style="width:100%;height:auto" loading="lazy">
+          <img src="${product.image}" alt="${product.name}" loading="lazy">
           <h3>${product.name}</h3>
-          <p>$${product.price}</p>
+          <p>${formatKsh(product.price)}</p>
           <div style="display:flex;gap:8px;">
-            <a href="electronics.html" class="cta-btn" aria-label="View more about ${product.name}">View More</a>
+            <a href="electronics.html" class="cta-btn" aria-label="View ${product.name}">View More</a>
             <button class="add-btn" data-id="${product.id}" aria-pressed="false">Add to Cart</button>
           </div>
         `;
         return div;
       }
 
-      featuredProducts.forEach(product => {
-        featuredContainer.appendChild(createProductCard(product));
-      });
+      featuredProducts.forEach(p => featuredContainer.appendChild(createProductCard(p)));
 
-      // Add to Cart handling with brief button color change and non-blocking notification
+      // Delegated click handler for add-to-cart (visual feedback + console log)
       featuredContainer.addEventListener('click', (e) => {
         const btn = e.target.closest('.add-btn');
         if (!btn) return;
-        const id = parseInt(btn.dataset.id, 10);
+        const id = Number(btn.dataset.id);
         const product = featuredProducts.find(p => p.id === id);
         if (!product) return;
 
-        // Visual feedback
+        // brief visual feedback
         btn.classList.add('added');
         btn.setAttribute('aria-pressed', 'true');
         setTimeout(() => {
           btn.classList.remove('added');
           btn.setAttribute('aria-pressed', 'false');
-        }, 800);
+        }, 700);
 
-        // Basic notification (replace with custom UI as needed)
-        // Do not block with alert() in production — using console log for now
+        // placeholder: integrate real cart logic later
         console.log(`${product.name} added to cart`);
       });
-
-      // Optional: hook for checkout link if custom behavior needed
-      const goToCheckout = document.getElementById('goToCheckout');
-      if (goToCheckout) {
-        goToCheckout.addEventListener('click', (e) => {
-          // default navigation is fine; add custom behavior here if required
-        });
-      }
     });
   </script>
 </body>

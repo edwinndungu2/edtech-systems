@@ -41,61 +41,74 @@
 
   <!-- Footer -->
   <footer>
-    <p>&copy; 2025 EDTECH SYSTEMS | Contact: info@edtechsystems.com</p>
+    <p>&copy; 2025 EDTECH SYSTEMS | Contact: ewairagu@gmail.com</p>
   </footer>
 
+  // ...existing code...
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Updated products: bluetooth speakers, speakers, cctvs, dashcams, smart bulbs, wifi extenders
       const products = [
-        { id: 1, name: 'CCTV Camera', price: 50, image: 'images/cctv.jpg' },
-        { id: 2, name: 'Drone', price: 150, image: 'images/drone.jpg' },
-        { id: 3, name: 'Smartwatch', price: 80, image: 'images/watch.jpg' },
-        { id: 4, name: 'Wireless Headphones', price: 120, image: 'images/headphones.jpg' },
-        { id: 5, name: 'USB Hub', price: 30, image: 'images/usb.jpg' },
-        { id: 6, name: '4K Webcam', price: 200, image: 'images/webcam.jpg' },
+        { id: 1, name: 'Bluetooth Speaker', price: 45, image: 'images/bluetooth-speaker.jpg' },
+        { id: 2, name: 'Portable Speaker', price: 75, image: 'images/speaker.jpg' },
+        { id: 3, name: 'CCTV Camera', price: 120, image: 'images/cctv.jpg' },
+        { id: 4, name: 'Dashcam', price: 85, image: 'images/dashcam.jpg' },
+        { id: 5, name: 'Smart Bulb', price: 20, image: 'images/smart-bulb.jpg' },
+        { id: 6, name: 'WiFi Extender', price: 40, image: 'images/wifi-extender.jpg' },
       ];
 
-      const container = document.getElementById('productsContainer');
+const container = document.getElementById('productsContainer');
 
-      function renderProducts(list) {
+function formatKsh(amount) {
+  return 'KSh ' + Number(amount).toLocaleString('en-KE', { maximumFractionDigits: 0 });
+}
+
+function renderProducts(list) {
         container.innerHTML = '';
         list.forEach(product => {
           const div = document.createElement('div');
           div.className = 'product-card';
           div.innerHTML = `
             <img src="${product.image}" alt="${product.name}" loading="lazy">
-            <h3>${product.name}</h3>
-            <p>$${product.price}</p>
-            <button class="add-btn" data-id="${product.id}">Add to Cart</button>
+<h3>${product.name}</h3>
+<p>${formatKsh(product.price)}</p>
+<button class="add-btn" data-id="${product.id}">Add to Cart</button>
           `;
           container.appendChild(div);
         });
-
-        container.addEventListener('click', (e) => {
-          const btn = e.target.closest('.add-btn');
-          if (!btn) return;
-          btn.classList.add('added');
-          setTimeout(() => btn.classList.remove('added'), 800);
-          console.log(`Product ${btn.dataset.id} added to cart`);
-        });
       }
 
-      window.applyFilters = () => {
-        const search = document.getElementById('searchInput').value.toLowerCase();
+      function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
         const priceRange = document.getElementById('priceFilter').value;
-
-        let filtered = products.filter(p => p.name.toLowerCase().includes(search));
-
-        if (priceRange === '0-100') filtered = filtered.filter(p => p.price <= 100);
-        else if (priceRange === '100-200') filtered = filtered.filter(p => p.price >= 100 && p.price <= 200);
-        else if (priceRange === '200+') filtered = filtered.filter(p => p.price >= 200);
-
+        
+        let filtered = products.filter(product => {
+          const matchesSearch = product.name.toLowerCase().includes(searchTerm);
+          let matchesPrice = true;
+          
+          if (priceRange === '0-100') matchesPrice = product.price <= 100;
+          else if (priceRange === '100-200') matchesPrice = product.price >= 100 && product.price <= 200;
+          else if (priceRange === '200+') matchesPrice = product.price > 200;
+          
+          return matchesSearch && matchesPrice;
+        });
+        
         renderProducts(filtered);
-      };
+      }
 
       renderProducts(products);
+
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('add-btn')) {
+          const productId = e.target.dataset.id;
+          const product = products.find(p => p.id == productId);
+          let cart = JSON.parse(localStorage.getItem('cart')) || [];
+          cart.push(product);
+          localStorage.setItem('cart', JSON.stringify(cart));
+          alert(product.name + ' added to cart!');
+        }
+      });
     });
   </script>
 </body>
 </html>
-
