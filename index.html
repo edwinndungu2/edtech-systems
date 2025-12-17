@@ -26,11 +26,11 @@
   <section class="hero container">
     <div class="hero-text">
       <h2>Quality Electronics for Everyday Life</h2>
-      <p>Shop Bluetooth speakers, CCTV cameras, dashcams, smart bulbs, WiFi extenders and more — delivered reliably.</p>
+      <p>Shop CCTV cameras, dashcams, WiFi routers & extenders, and speakers — prices in KSh.</p>
       <a href="electronics.html" class="cta-btn">Browse Products</a>
     </div>
     <div class="hero-image">
-      <img src="images/drone.jpg" alt="Featured tech" loading="lazy">
+      <img src="images/wifi-router-tplink.jpg" alt="Featured tech" loading="lazy">
     </div>
   </section>
 
@@ -76,16 +76,34 @@
       return 'KSh ' + Number(amount).toLocaleString('en-KE', { maximumFractionDigits: 0 });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // featured products (same items as electronics page)
-      const featuredProducts = [
-        { id: 1, name: 'Bluetooth Speaker', price: 45, image: 'images/bluetooth-speaker.jpg' },
-        { id: 2, name: 'Portable Speaker', price: 75, image: 'images/speaker.jpg' },
-        { id: 3, name: 'CCTV Camera', price: 120, image: 'images/cctv.jpg' },
-        { id: 4, name: 'Dashcam', price: 85, image: 'images/dashcam.jpg' },
-        { id: 5, name: 'Smart Bulb', price: 20, image: 'images/smart-bulb.jpg' }
-      ];
+    // Featured products (brands included)
+    const featuredProducts = [
+      { id: 1, name: 'CCTV Camera', brand: 'Hikvision', price: 12000, image: 'images/cctv-hikvision.jpg' },
+      { id: 2, name: 'Dashcam', brand: 'Xiaomi', price: 8500, image: 'images/dashcam-xiaomi.jpg' },
+      { id: 3, name: 'WiFi Router', brand: 'TP-Link', price: 4500, image: 'images/wifi-router-tplink.jpg' },
+      { id: 4, name: 'WiFi Extender', brand: 'Tenda', price: 3500, image: 'images/wifi-extender.jpg' },
+      { id: 5, name: 'Bluetooth Speaker', brand: 'JBL', price: 2500, image: 'images/bluetooth-jbl.jpg' },
+      { id: 6, name: 'Portable Speaker', brand: 'Sony', price: 4000, image: 'images/portable-sony.jpg' }
+    ];
 
+    function getCart() {
+      return JSON.parse(localStorage.getItem('cart')) || [];
+    }
+
+    function saveCart(cart) {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    function addToCart(product) {
+      const cart = getCart();
+      const key = `${product.id}-${product.brand}`;
+      const existing = cart.find(i => i.key === key);
+      if (existing) existing.qty = Number(existing.qty) + 1;
+      else cart.push({ key, id: product.id, name: product.name, brand: product.brand, price: product.price, qty: 1 });
+      saveCart(cart);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
       const featuredContainer = document.getElementById('featuredProducts');
       if (!featuredContainer) return;
 
@@ -93,12 +111,13 @@
         const div = document.createElement('div');
         div.className = 'product-card';
         div.innerHTML = `
-          <img src="${product.image}" alt="${product.name}" loading="lazy">
+          <img src="${product.image}" alt="${product.name} — ${product.brand}" loading="lazy">
           <h3>${product.name}</h3>
+          <div class="product-brand" style="color:#6b7280;margin-bottom:6px;font-size:0.95rem">${product.brand}</div>
           <p>${formatKsh(product.price)}</p>
           <div style="display:flex;gap:8px;">
-            <a href="electronics.html" class="cta-btn" aria-label="View ${product.name}">View More</a>
-            <button class="add-btn" data-id="${product.id}" aria-pressed="false">Add to Cart</button>
+            <a href="electronics.html" class="cta-btn" aria-label="View ${product.brand} ${product.name}">View</a>
+            <button class="add-btn" data-id="${product.id}" data-brand="${product.brand}" aria-pressed="false">Add to Cart</button>
           </div>
         `;
         return div;
@@ -106,15 +125,18 @@
 
       featuredProducts.forEach(p => featuredContainer.appendChild(createProductCard(p)));
 
-      // Delegated click handler for add-to-cart (visual feedback + console log)
+      // Delegated click handler for add-to-cart with visual feedback
       featuredContainer.addEventListener('click', (e) => {
         const btn = e.target.closest('.add-btn');
         if (!btn) return;
         const id = Number(btn.dataset.id);
-        const product = featuredProducts.find(p => p.id === id);
+        const brand = btn.dataset.brand;
+        const product = featuredProducts.find(p => p.id === id && p.brand === brand);
         if (!product) return;
 
-        // brief visual feedback
+        addToCart(product);
+
+        // visual feedback
         btn.classList.add('added');
         btn.setAttribute('aria-pressed', 'true');
         setTimeout(() => {
@@ -122,8 +144,7 @@
           btn.setAttribute('aria-pressed', 'false');
         }, 700);
 
-        // placeholder: integrate real cart logic later
-        console.log(`${product.name} added to cart`);
+        console.log(`${product.brand} ${product.name} added to cart`);
       });
     });
   </script>

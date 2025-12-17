@@ -26,11 +26,14 @@
     <div class="filter-section">
       <h3>Filter Products</h3>
       <input type="text" id="searchInput" placeholder="Search products...">
+      <select id="brandFilter">
+        <option value="">All Brands</option>
+      </select>
       <select id="priceFilter">
         <option value="">All Prices</option>
-        <option value="0-100">$0 - $100</option>
-        <option value="100-200">$100 - $200</option>
-        <option value="200+">$200+</option>
+        <option value="0-3000">KSh 0 - KSh 3,000</option>
+        <option value="3000-7000">KSh 3,000 - KSh 7,000</option>
+        <option value="7000+">KSh 7,000+</option>
       </select>
       <button onclick="applyFilters()">Filter</button>
     </div>
@@ -44,35 +47,50 @@
     <p>&copy; 2025 EDTECH SYSTEMS | Contact: ewairagu@gmail.com</p>
   </footer>
 
-  // ...existing code...
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Updated products: bluetooth speakers, speakers, cctvs, dashcams, smart bulbs, wifi extenders
+      // Products with brand field
       const products = [
-        { id: 1, name: 'Bluetooth Speaker', price: 45, image: 'images/bluetooth-speaker.jpg' },
-        { id: 2, name: 'Portable Speaker', price: 75, image: 'images/speaker.jpg' },
-        { id: 3, name: 'CCTV Camera', price: 120, image: 'images/cctv.jpg' },
-        { id: 4, name: 'Dashcam', price: 85, image: 'images/dashcam.jpg' },
-        { id: 5, name: 'Smart Bulb', price: 20, image: 'images/smart-bulb.jpg' },
-        { id: 6, name: 'WiFi Extender', price: 40, image: 'images/wifi-extender.jpg' },
+        { id: 1, name: 'CCTV Camera', brand: 'Hikvision', price: 12000, image: 'images/cctv-hikvision.jpg' },
+        { id: 2, name: 'CCTV Camera', brand: 'Dahua', price: 10000, image: 'images/cctv-dahua.jpg' },
+        { id: 3, name: 'Dashcam', brand: 'Xiaomi', price: 8500, image: 'images/dashcam-xiaomi.jpg' },
+        { id: 4, name: 'WiFi Router', brand: 'TP-Link', price: 4500, image: 'images/wifi-router-tplink.jpg' },
+        { id: 5, name: 'WiFi Extender', brand: 'Tenda', price: 3500, image: 'images/wifi-extender.jpg' },
+        { id: 6, name: 'Bluetooth Speaker', brand: 'JBL', price: 2500, image: 'images/bluetooth-jbl.jpg' },
+        { id: 7, name: 'Portable Speaker', brand: 'Sony', price: 4000, image: 'images/portable-sony.jpg' },
       ];
 
-const container = document.getElementById('productsContainer');
+      const container = document.getElementById('productsContainer');
+      const brandSelect = document.getElementById('brandFilter');
 
-function formatKsh(amount) {
-  return 'KSh ' + Number(amount).toLocaleString('en-KE', { maximumFractionDigits: 0 });
-}
+      function formatKsh(amount) {
+        return 'KSh ' + Number(amount).toLocaleString('en-KE', { maximumFractionDigits: 0 });
+      }
 
-function renderProducts(list) {
+      function populateBrands() {
+        const brands = Array.from(new Set(products.map(p => p.brand))).sort();
+        brands.forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b;
+          opt.textContent = b;
+          brandSelect.appendChild(opt);
+        });
+      }
+
+      function renderProducts(list) {
         container.innerHTML = '';
         list.forEach(product => {
           const div = document.createElement('div');
           div.className = 'product-card';
           div.innerHTML = `
-            <img src="${product.image}" alt="${product.name}" loading="lazy">
-<h3>${product.name}</h3>
-<p>${formatKsh(product.price)}</p>
-<button class="add-btn" data-id="${product.id}">Add to Cart</button>
+            <img src="${product.image}" alt="${product.name} — ${product.brand}" loading="lazy">
+            <h3>${product.name}</h3>
+            <div class="product-brand" style="color:#6b7280;margin-bottom:6px;font-size:0.95rem">${product.brand}</div>
+            <p>${formatKsh(product.price)}</p>
+            <div style="display:flex;gap:8px;">
+              <a href="checkout.html" class="cta-btn" aria-label="Buy ${product.brand} ${product.name}">Buy</a>
+              <button class="add-btn" data-id="${product.id}">Add to Cart</button>
+            </div>
           `;
           container.appendChild(div);
         });
@@ -80,34 +98,49 @@ function renderProducts(list) {
 
       function applyFilters() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const brandFilter = brandSelect.value;
         const priceRange = document.getElementById('priceFilter').value;
         
         let filtered = products.filter(product => {
-          const matchesSearch = product.name.toLowerCase().includes(searchTerm);
+          const matchesSearch = product.name.toLowerCase().includes(searchTerm) || product.brand.toLowerCase().includes(searchTerm);
+          const matchesBrand = !brandFilter || product.brand === brandFilter;
           let matchesPrice = true;
           
-          if (priceRange === '0-100') matchesPrice = product.price <= 100;
-          else if (priceRange === '100-200') matchesPrice = product.price >= 100 && product.price <= 200;
-          else if (priceRange === '200+') matchesPrice = product.price > 200;
+          if (priceRange === '0-3000') matchesPrice = product.price <= 3000;
+          else if (priceRange === '3000-7000') matchesPrice = product.price >= 3000 && product.price <= 7000;
+          else if (priceRange === '7000+') matchesPrice = product.price > 7000;
           
-          return matchesSearch && matchesPrice;
+          return matchesSearch && matchesPrice && matchesBrand;
         });
         
         renderProducts(filtered);
       }
 
-      renderProducts(products);
+      // Add to cart: merge duplicates by id+brand, store snapshot with qty
+      function addToCart(product) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const key = `${product.id}-${product.brand}`;
+        const existing = cart.find(i => i.key === key);
+        if (existing) existing.qty += 1;
+        else cart.push({ key, id: product.id, name: product.name, brand: product.brand, price: product.price, qty: 1 });
+        localStorage.setItem('cart', JSON.stringify(cart));
+        alert(`${product.brand} ${product.name} added to cart (${formatKsh(product.price)})`);
+      }
 
+      // Delegated click handler for add buttons
       document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('add-btn')) {
-          const productId = e.target.dataset.id;
-          const product = products.find(p => p.id == productId);
-          let cart = JSON.parse(localStorage.getItem('cart')) || [];
-          cart.push(product);
-          localStorage.setItem('cart', JSON.stringify(cart));
-          alert(product.name + ' added to cart!');
-        }
+        const btn = e.target.closest('.add-btn');
+        if (!btn) return;
+        const productId = Number(btn.dataset.id);
+        const product = products.find(p => p.id === productId);
+        if (!product) return;
+        addToCart(product);
       });
+
+      // init
+      populateBrands();
+      renderProducts(products);
+      window.applyFilters = applyFilters;
     });
   </script>
 </body>
